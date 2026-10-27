@@ -1,0 +1,59 @@
+# ==========================================
+# 1. Environment & Secret Files (Crucial)
+# ==========================================
+# Blocks the secret files but allows the .example files to be tracked
+**/backend/.env
+**/frontend/.env.local
+**/.env
+**/.env.*
+**/*.env
+!**/backend/.env.example
+!**/frontend/.env.example
+
+# ==========================================
+# 2. Django / Backend Options
+# ==========================================
+# Virtual Environment
+backend/.venv/
+
+# Databases
+backend/db.sqlite3
+backend/db.sqlite3-journal
+
+# Python compilation and caches
+**/__pycache__/
+**/*.py[cod]
+**/*.pyc
+backend/.django-stub-gen/
+
+# Django media and static asset builds (if generated)
+backend/media/
+backend/staticfiles/
+
+# Test files
+backend/test_py.py
+
+# ==========================================
+# 3. Next.js / Frontend Options
+# ==========================================
+# Next.js build output and cache
+frontend/.next/
+frontend/node_modules/
+
+# TypeScript build info cache
+frontend/tsconfig.tsbuildinfo
+
+# Debug logs
+frontend/*debug.log*
+
+# ==========================================
+# 4. OS & Editor Configurations
+# ==========================================
+.DS_Store
+Thumbs.db
+*.log
+
+# IDE settings directories
+.vscode/
+.idea/
+
