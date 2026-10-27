@@ -57,3 +57,11 @@ Thumbs.db
 .vscode/
 .idea/
 
+# Ignore specific frontend planning and script files
+frontend/AGENTS.md
+frontend/check-architecture.ps1
+frontend/scaffold.ps1
+frontend/docs/domain-ux-plan.md
+frontend/docs/authentication-integration.md
+frontend/nexa_dbscema.sql
+
