@@ -31,7 +31,6 @@ async function destinationAfterSignIn(session: AuthSession): Promise<string> {
 
 export default function LoginPage() {
   const router = useRouter();
-  const [checkingSession, setCheckingSession] = useState(true);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
 
@@ -53,7 +52,7 @@ export default function LoginPage() {
         ) {
           setError(getErrorMessage(requestError));
         }
-        setCheckingSession(false);
+        
       });
 
     return () => {
@@ -77,19 +76,6 @@ export default function LoginPage() {
       setError(getErrorMessage(requestError));
       setPending(false);
     }
-  }
-
-  if (checkingSession) {
-    return (
-      <AuthCard
-        title="Checking your sign-in"
-        description="One moment while we check your Nexa ERP session."
-      >
-        <p className="muted-text text-sm" role="status">
-          Verifying your session…
-        </p>
-      </AuthCard>
-    );
   }
 
   return (
@@ -144,7 +130,12 @@ export default function LoginPage() {
         </button>
       </form>
       <p className="muted-text mt-6 text-center text-sm">
-        Need an account? Ask your workspace administrator.
+        Need an account? {" "}
+        <Link className="font-medium text-(--primary) hover:underline"
+          href="/register"
+        >
+          Register here
+        </Link>
       </p>
     </AuthCard>
   );

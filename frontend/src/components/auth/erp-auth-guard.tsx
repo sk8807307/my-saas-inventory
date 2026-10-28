@@ -7,7 +7,7 @@ import AuthFormMessage from "@/components/auth/auth-form-message";
 import { getCurrentSession } from "@/features/auth/service";
 import { ApiError } from "@/lib/http";
 import type { AuthSession } from "@/features/auth/types";
-
+import PageLoader from "@/components/ui/page-loader";
 interface ErpAuthGuardProps {
   children: ReactNode;
 }
@@ -78,9 +78,7 @@ export default function ErpAuthGuard({ children }: ErpAuthGuardProps) {
             </button>
           </section>
         ) : (
-          <p className="muted-text text-sm" role="status">
-            Checking your sign-in…
-          </p>
+          <PageLoader message="Loading your workspace..." />
         )}
       </main>
     </>

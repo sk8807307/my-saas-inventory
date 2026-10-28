@@ -21,23 +21,12 @@ ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 if not SECRET_KEY:
     raise ImproperlyConfigured("Missing SECRET_KEY environment variable.")
 
-# Read the PostgreSQL connection values from the backend .env file.
-DB_NAME = env.str("DB_NAME", default="").strip()
-if not DB_NAME:
-    raise ImproperlyConfigured(
-        f"Set DB_NAME in {BASE_DIR / '.env'} (for example: DB_NAME=nexa_erp)."
-    )
 
+# Reads DATABASE_URL seamlessly, whether it's SQLite or Postgres later
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": DB_NAME,
-        "USER": env("DB_USER"),
-        "PASSWORD": env("DB_PASSWORD"),
-        "HOST": env("DB_HOST", default="localhost"),
-        "PORT": env("DB_PORT", default="5432"),
-    }
+    'default': env.db('DATABASE_URL')
 }
+
 # Use Django's console backend locally unless .env selects another backend.
 EMAIL_BACKEND = env.str(
     "EMAIL_BACKEND",
@@ -65,23 +54,30 @@ REST_FRAMEWORK = {
 }
 
 # For browser session auth, configure both CORS and CSRF origins for the frontend.
-CORS_ALLOWED_ORIGINS = env("CORS_ALLOWED_ORIGINS")
+CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS")
 CORS_ALLOW_CREDENTIALS = True
-CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS")
+CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS")
 
 # The frontend needs to read the CSRF token cookie and send it on unsafe requests.
 CSRF_COOKIE_HTTPONLY = False
 SESSION_COOKIE_HTTPONLY = True
-SESSION_COOKIE_SAMESITE = "Lax"
-CSRF_COOKIE_SAMESITE = "Lax"
 
-if not DEBUG:
+# CHANGED: Dynamically adjust cookie policies based on local development vs production environments.
+if DEBUG:
+    # Local Dev: Use 'None' + Secure=True to allow cross-origin cookies over HTTP loopback (127.0.0.1)
+    SESSION_COOKIE_SAMESITE = "None"
+    CSRF_COOKIE_SAMESITE = "None"
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+else:
+    # Production: Use strict/lax policies over full HTTPS production endpoints
+    SESSION_COOKIE_SAMESITE = "Lax"
+    CSRF_COOKIE_SAMESITE = "Lax"
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_SSL_REDIRECT = True
     # Keep only when requests arrive through a trusted HTTPS-terminating reverse proxy.
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -156,7 +152,7 @@ USE_TZ = True
 STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-FRONTEND_BASE_URL = env.str("FRONTEND_BASE_URL", default="http://localhost:3000")
+FRONTEND_BASE_URL = env.str("FRONTEND_BASE_URL", default="http://127.0.0.1:3000")
 
 AUTHENTICATION_BACKENDS = [
     "apps.authentication.backends.EmailAuthBackend",

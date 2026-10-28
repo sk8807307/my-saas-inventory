@@ -1,24 +1,31 @@
+
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { LogOut } from "lucide-react";
+import { LogOut, LoaderCircle } from "lucide-react";
 import { logout } from "@/features/auth/service";
 import type { AuthSession } from "@/features/auth/types";
 
-export default function AuthControls({ session }: { session: AuthSession }) {
-  const router = useRouter();
+export default function AuthControls({
+  session,
+}: {
+  session: AuthSession;
+}) {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
 
   async function handleLogout() {
+    if (pending) return;
+
     setPending(true);
     setError("");
 
     try {
       await logout();
-      // Django clears the session cookie; the proxy then sends protected visits to login.
-      router.replace("/login");
+
+      // Perform a full navigation so the login page loads with fresh
+      // authentication and proxy state. Theme preference is preserved.
+      window.location.replace("/login");
     } catch (requestError) {
       setError(
         requestError instanceof Error
@@ -30,8 +37,10 @@ export default function AuthControls({ session }: { session: AuthSession }) {
   }
 
   const name =
-    [session.user.first_name, session.user.last_name].filter(Boolean).join(" ") ||
-    session.user.email;
+    [session.user.first_name, session.user.last_name]
+      .filter(Boolean)
+      .join(" ") || session.user.email;
+
   const workspaceCount = session.memberships.length;
   const workspaceText = workspaceCount
     ? `${workspaceCount} workspace${workspaceCount === 1 ? "" : "s"}`
@@ -47,17 +56,32 @@ export default function AuthControls({ session }: { session: AuthSession }) {
           {workspaceText}
         </p>
       </div>
+
       <button
         type="button"
         className="icon-button"
         onClick={handleLogout}
         disabled={pending}
         aria-label={pending ? "Signing out" : "Sign out"}
+        aria-busy={pending}
         title={pending ? "Signing out…" : "Sign out"}
       >
-        <LogOut size={17} aria-hidden="true" />
+        {pending ? (
+          <LoaderCircle
+            size={17}
+            className="animate-spin"
+            aria-hidden="true"
+          />
+        ) : (
+          <LogOut size={17} aria-hidden="true" />
+        )}
       </button>
-      {error && <p className="text-xs text-(--danger)" role="alert">{error}</p>}
+
+      {error && (
+        <p className="text-xs text-(--danger)" role="alert">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

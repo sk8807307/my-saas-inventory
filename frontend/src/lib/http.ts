@@ -1,6 +1,4 @@
-const API_URL = (
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000"
-).replace(/\/+$/, "");
+import { API_BASE_URL, API_ENDPOINTS } from "@/lib/api/endpoints";
 
 const genericErrorMessage = "The request failed. Please try again.";
 const htmlResponseMessage = "The server returned an unexpected page. Please try again.";
@@ -32,7 +30,7 @@ export async function fetchApi(
   headers.set("Accept", "application/json");
 
   try {
-    return await fetch(`${API_URL}${path}`, {
+    return await fetch(`${API_BASE_URL}${path}`, {
       ...options,
       headers,
       cache: "no-store",
@@ -108,7 +106,7 @@ async function getCsrfToken(): Promise<string> {
   if (csrfRequest) return csrfRequest;
 
   csrfRequest = (async () => {
-    const response = await fetchApi("/api/auth/csrf/");
+    const response = await fetchApi(API_ENDPOINTS.auth.csrf);
     const data = await readResponse(response);
 
     if (!response.ok) {

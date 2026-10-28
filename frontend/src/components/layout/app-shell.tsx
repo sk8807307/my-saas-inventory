@@ -12,32 +12,7 @@ import AppHeader from "./app-header";
 import AppSidebar from "./app-sidebar";
 import MobileSidebar from "./mobile-sidebar";
 
-const THEME_EVENT = "nexa-theme-change";
-
-function getTheme() {
-  try {
-    const savedTheme = localStorage.getItem("nexa-theme");
-    if (savedTheme === "dark") return true;
-    if (savedTheme === "light") return false;
-  } catch {
-    // Use the system theme when browser storage is blocked.
-  }
-
-  return window.matchMedia("(prefers-color-scheme: dark)").matches;
-}
-
-function subscribeToTheme(update: () => void) {
-  const systemTheme = window.matchMedia("(prefers-color-scheme: dark)");
-  window.addEventListener("storage", update);
-  window.addEventListener(THEME_EVENT, update);
-  systemTheme.addEventListener("change", update);
-
-  return () => {
-    window.removeEventListener("storage", update);
-    window.removeEventListener(THEME_EVENT, update);
-    systemTheme.removeEventListener("change", update);
-  };
-}
+import { useTheme } from "@/components/providers/theme-provider";
 
 export default function AppShell({
   children,
@@ -46,22 +21,14 @@ export default function AppShell({
   children: ReactNode;
   session: AuthSession;
 }) {
-  const dark = useSyncExternalStore(subscribeToTheme, getTheme, () => false);
+  const { dark, toggleTheme } = useTheme();
+
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
   }, [dark]);
-
-  function toggleTheme() {
-    try {
-      localStorage.setItem("nexa-theme", dark ? "light" : "dark");
-    } catch {
-      // The theme can still change for this browser session.
-    }
-    window.dispatchEvent(new Event(THEME_EVENT));
-  }
 
   function toggleSidebar() {
     setCollapsed((wasCollapsed) => {

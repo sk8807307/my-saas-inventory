@@ -17,5 +17,3 @@ urlpatterns = [
 admin.site.site_header = "Nexa ERP Admin Portal"
 admin.site.site_title = "Nexa ERP Portal"
 admin.site.index_title = "Welcome to Nexa SaaS ERP Backend"
-
-# TODO: Keep authentication endpoints grouped under /api/auth/ and require explicit permission/CSRF policy per endpoint.
